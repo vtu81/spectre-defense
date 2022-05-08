@@ -10,7 +10,8 @@ function rcov_quantum_filter(reps, eps, k, α=4, τ=0.1; limit1=2, limit2=1.5)
         selected = cov_estimation_iterate(reps_pca, eps/n, τ, nothing, limit=round(Int, limit1*eps))
         reps_pca_selected = reps_pca[:, selected]
         Σ = cov(reps_pca_selected', corrected=false)
-        reps_estimated_white = Σ^(-1/2)*reps_pca
+        # reps_estimated_white = Σ^(-1/2)*reps_pca
+        reps_estimated_white = sqrt(Hermitian(Σ))\reps_pca
         Σ′ = cov(reps_estimated_white')
     end
     M = k > 1 ? exp(α*(Σ′- I)/(opnorm(Σ′) - 1)) : ones(1, 1)
@@ -28,7 +29,8 @@ function rcov_auto_quantum_filter(reps, eps, α=4, τ=0.1; limit1=2, limit2=1.5)
     for k in round.(Int, range(1, sqrt(100), length=10) .^ 2)
         selected = rcov_quantum_filter(reps, eps, k, α, τ; limit1=limit1, limit2=limit2)
         Σ = cov(reps_pca[:, selected]')
-        Σ′ = cov((Σ^(-1/2)*reps_pca)')
+        # Σ′ = cov((Σ^(-1/2)*reps_pca)')
+        Σ′ = cov((sqrt(Σ)\reps_pca)')
         M = exp(α*(Σ′- I)/(opnorm(Σ′) - 1))
         M /= tr(M)
         op = tr(Σ′ * M) / tr(M)
