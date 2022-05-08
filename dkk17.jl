@@ -35,7 +35,8 @@ function cov_estimation_filter(S′, ε, τ=0.1; limit=nothing, method=:krylov)
     C′ = 0
     Σ′ = S′*S′' ./ n
     G′ = MvNormal(Σ′)
-    invsqrtΣ′ = Symmetric(Σ′)^(-1/2)
+    # invsqrtΣ′ = Symmetric(Σ′)^(-1/2)
+    invsqrtΣ′ = sqrt(inv(Symmetric(Σ′)))
     Y = invsqrtΣ′ * S′
     xinvΣ′x = [y'y for y in eachcol(Y)]
     mask = xinvΣ′x .>= C*d*log(n/τ)
